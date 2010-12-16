@@ -1,0 +1,34 @@
+This is bill.ryder.nz@gmail.com's version of autofs 4.1.4.
+
+I've applied a lot of standard patches from the RHEL version, moved
+some 4.1.3 patches over and added my own work to  increase resiliency.  
+
+I have a horrible way of making debian packages in here which is bogus
+but at least it will generate an installable deb.  
+Look in the debian/deb_notes 
+
+I've only tested this with Centos 5.5 , 5.4, kubuntu 7.x and 10.x and
+have used it on SLES 10.2 
+
+I use this version where I work where we have about 4,000 nfs clients
+and about 40  large commercial NFS servers. We have 19 maps with a
+total of 458 entries and only use LDAP and NFS.  
+
+A condition of my publishing this work is that I'm not supposed to say
+where I work so don't ask. 
+
+I've submitted (or will have submitted soon) my patches to the autofs
+mailling list as well but this represents  what I consider to be a
+reliable autofs suitable for an environment where a hang until a
+fileserver is not  busy is preferable to a job failing. 
+
+It's quite possible I've done customisations which may not be right
+for you. In particular the init script and it's /etc/sysconfig/autofs 
+
+We only use autofs with maps held in ldap (apart from auto.hosts).
+
+
+
+
+
+
