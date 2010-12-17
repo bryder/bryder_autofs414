@@ -1,0 +1,22 @@
+#
+# Sample auto.master file that uses an LDAP server
+#
+# autofs can use either the automountMap or the nisMap schema.
+#
+# When using the automountMap schema use an entry like
+#
+# /home   ldap://budgie/ou=auto.indirect,dc=themaw,dc=net
+#
+# or if the default LDAP server is set in your LDAP config
+# you can use this
+#
+/home   ldap:ou=auto.indirect,dc=themaw,dc=net
+#
+# When using the nisMap schema use an entry like
+# 
+#/other   ldap://budgie/nisMapName=auto.indirect,dc=themaw,dc=net
+#
+# or if the default LDAP server is set in your LDAP config
+# you can use this
+#
+/other   ldap:nisMapName=auto.indirect,dc=themaw,dc=net

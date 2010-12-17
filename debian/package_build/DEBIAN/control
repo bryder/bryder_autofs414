@@ -1,0 +1,11 @@
+Package: autofs
+Priority: extra
+Section: checkinstall
+Installed-Size: 676
+Maintainer: bill.ryder.nz@gmail.com
+Architecture: amd64
+Version: 4.1.4-49
+#comment: unfortunately our kubuntu instal has this libldap package - the version number is part of the name.
+#comment1: so I can't use the version syntax. Sigh.
+Depends: libldap-2.3-0
+Description: autofs-4.1.4-49 bryder p49 with debian stuff (namely /etc/defaults/autofs and auto.hosts symlinked to auto.hosts)

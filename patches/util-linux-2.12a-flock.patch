@@ -1,0 +1,30 @@
+--- util-linux-2.12a/mount/fstab.c.flock	2005-09-17 01:36:03.000000000 +0800
++++ util-linux-2.12a/mount/fstab.c	2005-09-17 01:41:12.000000000 +0800
+@@ -488,7 +488,7 @@ lock_mtab (void) {
+ 				}
+ 				/* proceed anyway */
+ 			}
+-			we_created_lockfile = 1;
++			we_created_lockfile = fd;
+ 		} else {
+ 			static int tries = 0;
+ 
+@@ -510,9 +510,8 @@ lock_mtab (void) {
+ 					     MOUNTED_LOCK);
+ 				sleep(1);
+ 			}
++			close(fd);
+ 		}
+-
+-		close(fd);
+ 	}
+ }
+ 
+@@ -520,6 +519,7 @@ lock_mtab (void) {
+ void
+ unlock_mtab (void) {
+ 	if (we_created_lockfile) {
++		close(we_created_lockfile);
+ 		unlink (MOUNTED_LOCK);
+ 		we_created_lockfile = 0;
+ 	}

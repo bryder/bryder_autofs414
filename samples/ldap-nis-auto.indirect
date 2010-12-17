@@ -1,0 +1,32 @@
+#
+# ident $Id: ldap-nis-auto.indirect,v 1.2 2003/12/10 14:54:33 raven Exp $
+#
+dn: nisMapName=auto.indirect,dc=bogus
+objectClass: top
+objectClass: nisMap
+nisMapName: auto.indirect
+
+dn: cn=bin,nisMapName=auto.indirect,dc=bogus
+objectClass: nisObject
+cn: bin
+nisMapEntry: 	budgie:/usr/local/bin
+nisMapName: auto.indirect
+
+dn: cn=etc,nisMapName=auto.indirect,dc=bogus
+objectClass: nisObject
+cn: etc
+nisMapEntry: 	budgie:/usr/local/etc
+nisMapName: auto.indirect
+
+dn: cn=lib,nisMapName=auto.indirect,dc=bogus
+objectClass: nisObject
+cn: lib
+nisMapEntry: 	budgie:/usr/local/lib
+nisMapName: auto.indirect
+
+dn: cn=/,nisMapName=auto.indirect,dc=bogus
+objectClass: nisObject
+cn: /
+nisMapEntry: 	budgie:/usr/local/&
+nisMapName: auto.indirect
+

@@ -1,0 +1,18 @@
+#
+# ident $Id: ldap-automount-auto.master,v 1.2 2003/12/10 14:54:33 raven Exp $
+#
+dn: ou=auto.master,dc=bogus
+objectClass: top
+objectClass: automountMap
+ou: auto.master
+
+dn: cn=/ldap,ou=auto.master,dc=bogus
+objectClass: automount
+cn: /ldap
+automountInformation: ldap://budgie/ou=auto.indirect,dc=bogus
+
+dn: cn=/-,ou=auto.master,dc=bogus
+objectClass: automount
+cn: /-
+automountInformation: ldap://budgie/ou=auto.direct,dc=bogus
+

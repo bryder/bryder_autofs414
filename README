@@ -1,0 +1,53 @@
+-*- text -*-
+
+ident $Id: README,v 1.5 2003/12/04 15:34:52 raven Exp $
+
+autofs is a kernel-based automounter for Linux.  It performs a job
+similar to amd(8) but relies on a small stub of kernel code instead of
+pretending to be an NFS server.  The result is simpler code, better
+reliability, and much faster operation in the common case (everything
+already mounted.)
+
+An AMD/AutoFS HOWTO is available at:
+
+http://www.Linux-Consulting.com/Amd_AutoFS/autofs.html
+
+... as well as from your favourite HOWTO archive.
+
+To build autofs, please run:
+
+	./configure
+
+to configure the system.  See README.options for options that you can
+give configure.
+
+After configuring, you can:
+
+	make			... make the daemon and modules
+	make install		... install the daemon and modules
+
+Development kernels 2.3.41 and onwards contain the autofs4 as
+standard.  If you're using 2.2, you can apply the patch in
+the patches directory; it was made from 2.2.14, but it should
+work on 2.2.10 onwards. Patches related to extensions written
+by Ian Kent are also in the patches directory. See README.ghosting
+for a description of the kernel patches.
+
+If you use autofs as a module, you need to add "alias autofs4 autofs"
+to your modules config file (/etc/modules.conf or /etc/conf.modules).
+
+Limited direct mount functionality has been implemented and a
+describtion of what can be done can be found in README.direct.
+
+autofs was written by H. Peter Anvin of Transmeta Corporation, please
+read the COPYRIGHT file.  autofs 4 is the result of Jeremy
+Fitzhardinge's <jeremy@goop.org> work on autofs 3. Further enhancements
+have been made by Ian Kent <raven@themaw.net>.
+
+If you use or want to help develop autofs, please join the autofs
+mailing list by visiting:
+
+	http://linux.kernel.org/mailman/listinfo/autofs
+
+and folling the instructions there to subscribe to the autofs mailing list.
+

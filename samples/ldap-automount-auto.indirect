@@ -1,0 +1,28 @@
+#
+# ident $Id: ldap-automount-auto.indirect,v 1.2 2003/12/10 14:54:33 raven Exp $
+#
+dn: ou=auto.indirect,dc=bogus
+objectClass: top
+objectClass: automountMap
+ou: auto.indirect
+
+dn: cn=bin,ou=auto.indirect,dc=bogus
+objectClass: automount
+cn: bin
+automountInformation: 	budgie:/usr/local/bin
+
+dn: cn=etc,ou=auto.indirect,dc=bogus
+objectClass: automount
+cn: etc
+automountInformation: 	budgie:/usr/local/etc
+
+dn: cn=lib,ou=auto.indirect,dc=bogus
+objectClass: automount
+cn: lib
+automountInformation: 	budgie:/usr/local/lib
+
+dn: cn=/,ou=auto.indirect,dc=bogus
+objectClass: automount
+cn: /
+automountInformation: 	budgie:/usr/local/&
+

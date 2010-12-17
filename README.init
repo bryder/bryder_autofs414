@@ -1,0 +1,45 @@
+
+ident $Id: README.init,v 1.2 2003/12/10 14:54:32 raven Exp $
+
+Init script changes in autofs v4
+=================================
+
+The init script used by autofs v4.1 is essentially the one
+found in the RedHat autofs v3 package.
+
+The RedHat init patch gives us some good features. Apart from master
+map LDAP support it looks at the nsswitch.conf automount key to
+find out where the master map is located.
+
+ie.
+
+automount: files
+
+or
+
+automount: ldap
+
+Note that automount does not handle multiple instances of the same master 
+map key.
+
+There is a difference to the master syntax as well.
+
+For example:
+
+/-	yp:auto.global
+/home	file:/etc/auto.home
+
+instead of
+
+/-	yp auto.global
+/home	file /etc/auto.home
+
+As always if the map type is not specified it is implied by the syntax.
+
+ie.
+
+/-	auto.global
+/home	/etc/auto.home
+
+implies the same map types as the first example above.
+ 

@@ -1,0 +1,82 @@
+-*- text -*-
+
+ident $Id: README.options,v 1.2 2003/09/29 08:22:35 raven Exp $
+
+The following options can be given to configure:
+
+Install directory
+-----------------
+
+autofs usually installs in /usr, with the daemon in /usr/sbin, the man
+pages in /usr/man, and the modules in /usr/lib/autofs.  You can change
+the install root with the option
+
+	--prefix=<root_prefix>
+
+For example, to install autofs under /usr/local, please specify:
+
+	./configure --prefix=/usr/local
+
+NOTICE TO DISTRIBUTORS: Don't use this option if you want to install
+autofs in a temporary directory that isn't the final destination (for
+example, if you are making an autofs package for a distribution.)
+Instead, you can do
+
+	make install INSTALLROOT=/tmp/install
+
+... which will install all files relative to /tmp/install.
+
+
+Location of system binaries
+---------------------------
+
+The autofs daemon uses several system utilities, including mount,
+umount, e2fsck and smbmount to do its job.  "configure" will search
+for these binaries and compile in the paths into the daemon and
+modules as needed.
+
+By default it searches the following directories, in order:
+
+	/usr/bin:/bin:/usr/sbin:/sbin
+
+Sometimes this search path isn't appropriate; i.e. it contains
+binaries that shouldn't be used, or it doesn't contain all the needed
+binaries.  If so, specify the
+	
+	--with-path=<PATH>
+
+option, for example:
+
+	./configure --with-path=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin
+
+
+Hesiod support
+--------------
+
+To enable Hesiod support, if your Hesiod library isn't installed in
+/usr/lib with the include files in /usr/include, please specify the
+option:
+
+	--with-hesiod=<hesiod_root>
+
+For example, if your Hesiod library lives in /usr/athena/lib and the
+include files in /usr/athena/include, please specify:
+
+	./configure --with-hesiod=/usr/athena
+
+
+OpenLDAP support
+----------------
+
+To enable  support, if your OpenLDAP library isn't installed in
+/usr/lib with the include files in /usr/include, please specify the
+option:
+
+	--with-openldap=<openldap_root>
+
+For example, if your OpenLDAP library lives in /opt/openldap/lib and the
+include files in /opt/openldap/include, please specify:
+
+	./configure --with-openldap=/opt/openldap
+
+

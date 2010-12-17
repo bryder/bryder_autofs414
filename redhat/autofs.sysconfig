@@ -1,0 +1,63 @@
+# Define custom options in /etc/sysconfig/autofs
+# in debian and related you put it in /etc/default/autofs 
+
+# Define UNDERSCORETODOT as 1 to convert 
+#     auto_home to auto.home and auto_mnt to auto.mnt
+
+# Mount options, e.g. rsize=8192, should go in auto.master or
+#     the auto_* map entry for a specific mount point
+
+# You can more than just set options here. You can run shell code.
+# eg:
+
+#uname_op=`uname -a`
+#if ( echo $uname_op | grep x86_64 > /dev/null ) ; then
+#        export OSXX="linux64"
+#elif ( echo $uname_op | grep Linux >/dev/null ) ; then
+#        export OSXX="linux"
+#else
+#        export OSXX="irix"
+#fi
+
+# Use LOCALOPTIONS for defining variables, e.g. OSREL - these are put at the end of the automount startup line
+LOCALOPTIONS=""
+#LOCALOPTIONS="-D OSNAME=$OSXX"
+
+# Use DAEMONOPTIONS to define the unmount timeout and whatever else the init script currently recognises
+DAEMONOPTIONS=""
+#DAEMONOPTIONS="--timeout=60"
+
+# Use UNCHECKED_DAEMONOPTIONS to set any option to the automounter which the init script does not recognise. 
+UNCHECKED_DAEMONOPTIONS=""
+
+#  UNDERSCORETODOT changes auto_home to auto.home and auto_mnt to auto.mnt
+UNDERSCORETODOT=1
+DISABLE_DIRECT=1
+
+# Using a good number of maps can cause autofs to take
+# some time to exit. If you get init script stop fails
+# but find that a little while latter it's gone increase
+# this value.
+DAEMON_EXIT_WAIT=10
+
+
+
+# LDAPAUTOMASTER contains command line arguments for the
+# /usr/lib/autofs/autofs-ldap-auto-master program
+# Run the program with --help to see available options
+LDAPAUTOMASTER=""
+
+# EG This will make the ldap-autofs-auto-master use the rfc2307bis schema
+# LDAPAUTOMASTER="-m automountMap -e automount -n automountMapName -k automountKey -v automountInformation auto.master"
+
+
+# The openldap libraries allow you to override the ldap.conf settings on a per client basis using environment varibles.
+#  autofs-ldap-auto-master uses these libraries and hence inherits this ability
+#
+# To do this you need to export them.
+# eg
+# export LDAPURI=ldap://ldap-server-you-want-to-use.blah.co.nz:888
+# export LDAPBASE=dc=blah,dc=co,dc=nz
+
+# There are plenty of others. Man ldap.conf(5) and prepend LDAP to a variable you see there. It'll probably work.
+ 

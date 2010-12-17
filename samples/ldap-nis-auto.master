@@ -1,0 +1,20 @@
+#
+# ident $Id: ldap-nis-auto.master,v 1.2 2003/12/10 14:54:33 raven Exp $
+#
+dn: nisMapName=auto.master,dc=bogus
+objectClass: top
+objectClass: nisMap
+nisMapName: auto.master
+
+dn: cn=/ldap,nisMapName=auto.master,dc=bogus
+objectClass: nisObject
+cn: /ldap
+nisMapEntry: ldap://budgie/nisMapName=auto.indirect,dc=bogus
+nisMapName: auto.master
+
+dn: cn=/-,nisMapName=auto.master,dc=bogus
+objectClass: nisObject
+cn: /-
+nisMapEntry: ldap://budgie/nisMapName=auto.direct,dc=bogus
+nisMapName: auto.master
+

@@ -1,0 +1,56 @@
+#
+# ident $Id: ldap-nis-auto.direct,v 1.2 2003/12/10 14:54:33 raven Exp $
+#
+dn: nisMapName=auto.direct,dc=bogus
+objectClass: top
+objectClass: nisMap
+nisMapName: auto.direct
+
+dn: cn=/nfs/budgie/man,nisMapName=auto.direct,dc=bogus
+objectClass: nisObject
+cn: /nfs/budgie/man
+nisMapEntry: 	budgie:/usr/local/man
+nisMapName: auto.direct
+
+dn: cn=/nfs/budgie/bin,nisMapName=auto.direct,dc=bogus
+objectClass: nisObject
+cn: /nfs/budgie/bin
+nisMapEntry: 	budgie:/local/data/bin
+nisMapName: auto.direct
+
+dn: cn=/nfs/budgie/etc,nisMapName=auto.direct,dc=bogus
+objectClass: nisObject
+cn: /nfs/budgie/etc
+nisMapEntry: 	budgie:/usr/local/etc
+nisMapName: auto.direct
+
+dn: cn=/nfs/sbin,nisMapName=auto.direct,dc=bogus
+objectClass: nisObject
+cn: /nfs/sbin
+nisMapEntry: 	budgie:/usr/local/sbin
+nisMapName: auto.direct
+
+dn: cn=/tst/budgie/man,nisMapName=auto.direct,dc=bogus
+objectClass: nisObject
+cn: /tst/budgie/man
+nisMapEntry: 	budgie:/usr/local/man
+nisMapName: auto.direct
+
+dn: cn=/nfs/budgie/sbin,nisMapName=auto.direct,dc=bogus
+objectClass: nisObject
+cn: /nfs/budgie/sbin
+nisMapEntry: budgie:/usr/local/sbin
+nisMapName: auto.direct
+
+dn: cn=/nfs/budgie/test,nisMapName=auto.direct,dc=bogus
+objectClass: nisObject
+cn: /nfs/budgie/test
+nisMapEntry: budgie:/usr/local/test
+nisMapName: auto.direct
+
+dn: cn=/tst/budgie/etc,nisMapName=auto.direct,dc=bogus
+objectClass: nisObject
+cn: /tst/budgie/etc
+nisMapEntry: 	budgie:/usr/local/etc
+nisMapName: auto.direct
+

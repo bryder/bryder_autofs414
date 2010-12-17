@@ -1,0 +1,436 @@
+16/12/2010 autofs-4.1.4-p50
+---------------------------
+   Added LDAP_DEPRECATED for the autofs-ldap-auto-master build. It segfaults on SuSE without it
+
+13/10/2010 autofs-4.1.4-p49
+---------------------------
+   Added another error to the retryable errors list
+     "server down"
+   Seen on kubuntu 7 with massive overload on a test fileserver
+
+28/07/2010 autofs-4.1.4-p48
+---------------------------
+   version tweak to debian control file (never tagged this one so I've shoved it in the p49 update)
+   
+28/07/2010 autofs-4.1.4-p47
+---------------------------
+   Added another error to the retryable errors list
+     "mount system call failed"
+   Seen on kubuntu_10_04_64 with 2.6.31.12-xxxx-20100212
+
+28/07/2010 autofs-4.1.4-p46
+---------------------------
+   Added another error to the retryable errors list
+     "nfs bindresvport: Address already in use"
+   Seen this on our kubuntu 7 machines.
+
+28/07/2010 autofs-4.1.4-p45
+---------------------------
+  All this was done to make life easier making a debian build
+  Added .version file to make non rpm builds a bit easier
+  Added .autofs-4.1.4 to make non rpm builds easier (in fact it won't configure without it for some reason)
+  Fixed problem in init script on debian machines (missing variables in the debian section)
+
+19/07/2010 autofs-4.1.4-p44
+---------------------------
+  Fix a problem where automount can shut itself down for no good reason.
+  The case I had was  very high speed amount of failed mounts triggering the
+      if (handle_packet() && errno != EINTR) ; break  
+  piece of code in automount.c:handle_mounts which ended up just shutting down the automounter.
+  The debug statement confirmed it (ap.state was 1 (READY) instead of 6 (SHUTDOWN))
+  The bug is triggered if a child signal is caught when the daemon was not in the middle of a system call - hence errno 
+  was not set to EINTR and handle_packet returned non zero - as in when a mount point didn't exist. 
+  This was  reproducible when using the ignore-stupid-paths option which meant the daemon spent
+  more time in user space handling autofs kernel packets than before.
+
+  
+15/07/2010 autofs-4.1.4-p43
+---------------------------
+
+  Added automount(pid to the ignore stupid paths list.
+
+  Samba will look for this path when it tries to get quotas on mount points.
+  I know I should fix samba but for now I'm adding it to the hacks I've already done for stupid paths.
+  Of course stupid paths should not be hardcoded - I should use regexs etc etc.
+
+14/07/2010 autofs-4.1.4-p42
+---------------------------
+ Adds retrying to nfs mounts. This is required because I've seen mount bursts when a job starts where the number 
+ of reserve ports can be depleted and all that needs to be done is wait a little bit and mount again.
+ You can work around this by using insecure ports to mount NFS things but I prefered doing it this way.
+ 
+ Also we get retryable errors when the fileservers get really busy. The errors it retries on are defined in daemon/spawn.c
+ 
+ 	"RPC: Remote system error - Connection refused", /* heavy fileserver load */
+ 	"RPC: Timed out", /* heavy fileserver load */
+ 	"RPC: Remote system error - Connection timed out", /* heavy fileserver load */
+ 	"Input/output error", /* too many mounts starting at once on a client  - centos 2.6.18 */
+ 	"can't read superblock", /* too many mounts starting at once on a client - 2.6.25.18 and others */ 
+ 
+ The options are --max-nfs-mount-retries|-R  and --nfs-mount-retry-pause|-P options
+ 
+ The pause is chosen at random between 1 second and the retry-pause amount + 1
+
+01/07/2010 autofs-4.1.4-p41
+---------------------------
+ Adds the -I or --ignore-stupid-paths option.
+ 
+ The kernel nicely formats the path to mount up so that there are no extraneous dots or anything in it.
+ And it's just the part relative to the top level automount
+ 
+ The -I option makes the automount daemon  return a fail to the kernel for any path with a '*' in it or if the path 
+ begins with a dot. It does this before it forks so it's very fast.
+ 
+ The '*' paths are very annoying when you use ldap because it will match a lot of mount points and the first thing returned 
+ by the search will be mounted  as /toplevelthing/*. 
+ 
+ The .blahblah paths are excluded because when serving NFS out to OSX and Windows via SAMBA we've found that OSX in 
+ particular will try to open a .directoryname for every directoryname in a mountpoint when browsing. This can be slow 
+ when ghosting is on and you have a lot of mount points. Using this option it takes 0.001s more or less 
+ to return a fail, without it it takes around 0.04s on the machine I tested. Mainly because the autmounter 
+ forks before looking up the path. So 140 directories will delay you around 6s when a finder visits that top level automounter.
+ 
+
+29/06/2010 autofs-4.1.4-p40
+---------------------------
+  Reinstates the ldap-cleanup.patch from 4.1.3 which does MUCH better LDAP schema handling. 
+  It only looks up the schema once and then remembers it for every requested path under a mount point.
+  It  includes the --use_old_ldap_lookup or -u option to make the code search every schema every time the way it used to.
+  bryder changed the original patch is to invert the search order so the most modern schema (rfc2307bis) is checked first
+  bryder added the option to the man page and help output from automount.c
+
+
+29/06/2010 autofs-4.1.4-p39
+---------------------------
+ bryder patch to add function name to lookup_ldap.c debug and info and critcal statements
+
+29/06/2010 autofs-4.1.4-p38
+---------------------------
+- Applied modifed no-unlink-upstream patch from kernel.org - prevents removals of files when removing a monted dir. bryder changes are cosmetic debug changes
+
+29/06/2010 autofs-4.1.4-p37 
+---------------------------
+
+  bryder did various init script and sysconfig (for redhat but also will work for debian) autofs chanes
+  Changed rc.autofs to have a UNCHECKED_DAEMONOPTIONS environment variable  this is unparsed and prepended to any daemon map options
+  Changed debian handling of LOCALOPTIONS and DAEMONOPTIONS to match the redhat way (ie checks for overrides etc)
+  And updated documentation in the sample /etc/sysconfig/autofs file which can be used as a /etc/default/autofs file in debian
+
+
+29/06/2010 autofs-4.1.4-p36
+--------------------------
+ bryder changed from 4.1.3 redhat patch
+  bryder changed /dev/random to /dev/urandom. /dev/random is far too slow.
+  This patch adds the --random-multimount-selection or -r option which prevents the automounter from testing each mount point for performance.
+  One is selected at random. 
+  bryder added manpage update and added the option to the help output
+
+  NOTE p34 below is actually p35 - p34 is the patch to update this changelog. Am sick of shuffling my commits so won't fix it.
+
+
+16/06/2010 autofs-4.1.4-p34
+---------------------------
+ bryder dumpmap 4.1.3 port - doesn't do the hack for the lookup_files. Works for us though.
+ The dumpmap patch adds the --dumpmap or -D argument to dump maps read by the daemon - then the daemon exits.
+ Added help to the automount.c command for this option and updated the man page
+
+
+25/10/2006 autofs-4.1.4-p33
+---------------------------
+Includes patch1-patch 33 in the redhat autofs.spec
+
+Which are:
+
+Patch1: autofs-4.1.4-reentrant-syslog.patch
+Patch2: autofs-4.1.4-reentrant-syslog-copyright.patch
+Patch3: autofs-4.1.4-init-nsswitch-comment.patch
+Patch4: autofs-4.1.4-init-one-auto-master.patch
+Patch5: autofs-4.1.4-init-browse-as-non-first-option.patch
+Patch6: autofs-4.1.4-hesiod-bind.patch
+Patch7: autofs-4.1.4-non-replicated-ping.patch
+Patch8: autofs-4.1.4-check-nsswitch-submount.patch
+Patch9: autofs-4.1.3-alt-master-ldap.patch
+Patch10: autofs-4.1.4-multi-parse-fix.patch
+Patch11: autofs-4.1.4-cache-update-race-fix.patch
+Patch12: autofs-4.1.4-solaris-hosts-in-auto-master.patch
+Patch13: autofs-4.1.4-keylen-length-check.patch
+Patch14: autofs-4.1.4-sun-parse-fixes.patch
+Patch15: autofs-4.1.4-check-return-of-is-local-addr.patch
+Patch16: autofs-4.1.4-fix-sort-opts.patch
+Patch17: autofs-4.1.4-no-slash-misc.patch
+Patch18: autofs-4.1.4-locking-fix.patch
+Patch19: autofs-4.1.4-configureable-locking.patch
+Patch20: autofs-4.1.4-sol10-schema.patch
+Patch21: autofs-4.1.4-sockopt-len-type.patch
+Patch22: autofs-4.1.4-yp_order-order-type.patch
+Patch23: autofs-4.1.4-ldap-depricated.patch
+Patch24: autofs-4.1.4-underscore_to_dot.patch
+Patch25: autofs-4.1.3-ldap-auto-master.patch
+Patch26: autofs-4.1.4-auto_net-escape-hash.patch
+Patch27: autofs-4.1.4-auto.smb-cifs.patch
+Patch28: autofs-4.1.4-get_best_mount-white-space.patch
+Patch29: autofs-4.1.4-discard-bg-nofg-options.patch
+Patch30: autofs-4.1.4-no-first-message.patch
+Patch31: autofs-4.1.4-bad-key-len-fix.patch
+Patch32: autofs-4.1.4-replicated-parse-error.patch
+Patch33: autofs-4.1.4-dont-create-remote-dirs.patch
+
+
+
+
+
+
+11/4/2005 autofs-4.1.4
+----------------------
+- add /proc/modules check to Debian init script.
+- fix typo in Gentoo init script reload function.
+- fix default map type selection for submounts.
+  - a side affect of this patch is that when the first mount
+    point of a multi-mount entry is '/' it is no longer
+    mandatory. This matches the Solaris automount parsing.
+- implement a timeout for LDAP communication (Dan Cox).
+- change setpgrp to setsid to disascociate from tty properly.
+- fix auto.net and auto.smb to not use non-bourne shell regex
+   when searching for their export list programs.
+- fix nsswitch.conf sources detection.
+- fix grep failing causing assignments to terminate init script.
+- fix handling of localoptions options init script variable.
+- sanitize records from auto.master file (Debian bug#298649).
+- alter logic of UNDERSCORETODOT to work when it's not set (Debian bug#301358).
+- attempt to fix Debian upgrade fail bug#300703.
+  - changes from Herbert Xus' patch.
+  - he`s not sure he got all cases and I can't see more either, so we'll see.
+- revert some broken changes in Gentoo init script.
+- fix end of string handling at end of parsing options string.
+- more work on replicated server code - fix occasional mount fail.
+- revert some Debian init script changes in favour of Debian maintainer patches.
+  - and fix the fix.
+- update kernel patches.
+- remove isprint calls as it breaks 8-bit characters.
+
+14/2/2005 autofs-4.1.4_beta2
+----------------------------
+- add update to -D variable propogation patch (Michael Blanddford).
+- fix rentrancy problem when releasing the cache.
+- fix 'automount: ' error in patern match in init script.
+- applied autofs4 module check changes in Debian init script.
+- fix handling of missing newline on last file map entry.
+- fix map entry lookup order (second try).
+- fix couple of comiler warnings.
+- fix reload init script option for Gentoo and Debian (nearly).
+
+26/1/2005 autofs-4.1.4_beta1
+---------------------------
+- fix error in define of mtab lock file.
+- fix mischief caused by change in default strict -> nonstrict.
+- fix replicated server detection (TCP/UDP/NFSv2/NFSv3) logic (Jeff Moyer and Ian Kent).
+- fix error when setting pwd.
+- fix socket leak (Jeff Moyer and Ian Kent).
+- fix potential race in signal handling code (Jeff Moyer).
+- miscelaneous corrections to doco and typos (Peter Breitenlohner).
+- fix i18n init script underline output (Jeff Moyer).
+- fix logic error in replicated server selection (Jeremy Rosengren and Ian Kent).
+- the map change detection patch
+    - note this requires a kernel patch to work, see README.patches.
+- correct whitespace handling in maps.
+- mount table handling cleanup.
+- fix multi map lookup broken after the map update patch.
+- fix auto master map concatenation bug (Jeff Moyer).
+- merge some Debian patches (Arthur Korn)
+    - 032 remove trailing slash in mount_afs.c.
+    - 033 support hesiod priorities in lookup_hesiod.c.
+    - 034 handle empty options in changer ,ext2 and generic modules.
+    - 035 program mount repeated last character of map output.
+    - 036 make make fail on failure.
+- fix memory leak in cache_clean function (Jeff Moyer).
+- remove restriction of mounting ncpfs filesystems (Mike Fleetwood).
+    - see README.ncpfs.
+- second signal race fix (almost what Chris Feist recommended).
+- fix the ordering of +ypmapname entries in master map (Chris Feist).
+- fix backslash parse for smb mount option username\password (George Hansper).
+- keep udp rpc ping routine from using up reserved ports (Jeff Moyer).
+- maintain backwards compatibility w/ local file maps (Chris Feist).
+- init script fix (Arthur Korn).
+- fix duplicate map handling in init script (Chris Feist).
+- force local map paths to begin with / (Chris Feist).
+- allow for LDAP maps that have greater than the LDAP result count limit (Chris Feist).
+- allow for program maps returning larger than 4kb (Jeff Moyer and Chris Feist?).
+- fix some potential buffer overflows, applied with amendments (Steve Grubb).
+- carry -D variable definitions to submounts (Michael Blandford).
+- merge Debian patch 044 update reference to mailing list (Arthur Korn).
+- provide ability to convert read-only NFS mounts to read-only bind mounts (Thorild Selen).
+- fix incorrect direct map entry lookup in yp module. 
+- merge most of RedHat init patch and the browse and umount loopback patches (Jeff Moyer).
+- fix file handle being left open in lookup_file.c.
+- update 2.4 kernel module patches.
+- add 2.6 kernel module patches.
+- merge fix for program maps returning larger than 4kb (Jeff Moyer).
+- fix trailing white space not removed from map entries not containing a colon.
+- merge remaining bits of Debian and Redhat init script patches.
+- fix duplicate map entry order - return first read instead of last.
+- bump version to 4.1.4 beta1 and start testing.
+- fix spec file to build the beta.
+- fix compile warning in lookup_yp.c.
+- more work on Debian part of init script (wip).
+- add Gentoo portage ebuild files.
+- review remaining Debian patches
+   - all 000 and 001 patches are included in 4.1.4.
+   - 002 log cause of ldap errors applied
+   - 030 document +map in auto master applied.
+   - 031 document -D in automount 8 applied in another diff.
+   - 040 init script policy conformance and backwards compatibility
+         merged but slightly broken (see above).
+   - 041 needs review against new version.
+   - 045 module loading set e applied with minor change.
+   - 046 needs review against new version.
+   - 047 277320 correct automount nsswitch regex applied.
+   - 049 parse_sun to be merged in another diff.
+   - 050 disable_direct_maps.diff applied.
+- update spec file to use autofs sysconfig.
+- update auto.net to search for showmount and use lang variable.
+- allow for ":" escape in multi mount parse (Elmar Pruesse).
+- add auto.smb example program map (Elmar Pruesse).
+- apply slashify-colons patch to enable it work (Timo Felbinger).
+- fix for ldap_search when multiple cn's are in one LDAP entry (Chris Feist).
+- fix alarm not being reset during prune signal event.
+- reimplement locking.
+- implement signaling of submount processes from within daemon.
+   - Fix errors in mount entry handling module.
+   - Update lock module to suit.
+- merge multi map over mount patch.
+- add init script variable to allow adjustment of time to wait for shutdown.
+- fix no directory list when map entry deleted and wild card matches.
+- prevent pre-existing automount point directory from being removed at termination (Chirs Feist).
+- update replicated server doco
+   - autofs will always choose localhost regardless of weights (Chirs Feist).
+
+19/05/2004 autofs-4.1.3
+-----------------------
+- fixed bug processing --verbose option in init scripts.
+- added missing parameter in call to run fsck on ext2 module (Jeff Moyer).
+- added check for executable existance in getldapmounts in init script.
+- updated comment about option handling in getmounts in init script.
+- updated kernel module patches.
+- fix to init script for reload option (Michael Blandford).
+- autofs now requires autoconf later than 2.5.
+- replicated server fixup.
+- fix segv in NIS lookup module (Jeff Moyer).
+- init script fix for Debian (Thorild Selen).
+- fix pie option not checking for runable executable.
+- add NFS V3 and TCP to rpc discovery.
+- make nonstrict the default for multi-mount map entries.
+
+07/04/2004 autofs-4.1.2
+-----------------------
+- merge patches from Jeff Moyer.
+   - Change (back) compile option -fpic -> -fPIC.
+   - add code to recognise old LDAP master map format.
+   - document limitation of direct mounts obscuring mount
+     points in README.direct.
+   - fix error in detecting duplicate master map entries
+     in init script.
+   - add check for automount base already mounted.
+   - check for pie support and enable compile option if
+     available.
+   - corrections to init script including send HUP signal
+     on reload.
+- fix unchecked return from get_best_mount.
+- add example file master map using LDAP.
+- 1st attempt to deal with smb mounts that go away while
+  mounted.
+- updated kernel patches.
+
+14/03/2004 autofs-4.1.1
+-----------------------
+- added CHANGELOG.
+- fixed error in some ident tags.
+- merge debian patch 032 document nonstrict special option.
+- updated spec file to standardise paths etc.
+- reintroduced some 4.0.0 init script code to help serialise
+  shutdown signaling and umount of submounts. This should
+  alieviate some of the contention for umount at shutdown.
+- fix invalid path reference on error exit.
+- merged debian patches.
+   - 030 man page corrections in autofs(5) and automount(8).
+   - 033 correct url in man page automount(8).
+   - 034 correct mount call in mount_changer.c.
+   - 040 document gid option in man page autofs(5).
+- change fsck return code check.
+   - still try to mount if fsck fails to run.
+   - error only if fsck finds uncorrectable errors.
+- fixed lookup problem with wildcard order in map.
+- fixed lookup problem relating to directory tidyup.
+- merge Jim Carters' buffer management and expire limit patch.
+- remove make requirement for hesoid and ldap presence.
+- add check for submount point itself busy.
+   - requires autofs4 4.04 kernel module.
+- added --verbode and --debug options to quieten daemon and
+  provide ability to get debug output when needed. Default
+  is produce no output except error messages.
+- merge Mike Blandfords' replicated server patches.
+- added ability to access external environment var.
+   - set by default, use --disable-ext-env to turn of.
+
+4/12/2003 autofs-4.1.0
+----------------------
+
+- Fixed problem with regex in init script not recognising -g option.
+- removed patch to ignore failed mounts in tree mounts in favour
+  of using nonstrict option.
+- updated autofs4 kernel module patches.
+
+
+10/11/2003 autofs-4.1.0-beta3
+-----------------------------
+
+- I'm aware of one outstanding problem with multi-mount maps. The
+  senario is that the daemon cannot remount a manualy umounted multi-mount
+  entry until after the following expire event. This is due kernel module
+  and daemon not knowing the umount has occured and consequently not
+  cleaning up afterward. This causes the kernel module to return a longer
+  path than it should which cannot be matched in the map. I hope to be able
+  to fix this a some time in the future.
+- removed debug print to catch reported mount problem.
+- added patch to ignore failed mounts in tree mounts.
+
+
+14/10/2003 autofs-4.1.0-beta2
+-----------------------------
+
+- added debug print to catch reported mount problem.
+- updated autofs4 patches and their documention.
+- added autofs4 patch for 2.4.22.
+
+
+29/9/2003 autofs-4.1.0-beta1
+----------------------------
+
+This is a restructuring and improvement of my original v4 patch which added
+direct mount support for file and NIS maps.
+                                                                                
+As well the considerable restructure and tidy up of my original patch it
+includes:
+                                                                                
+- Merge of all the RedHat autofs v3 patches. This includes the RedHat
+  init script and LDAP improvements. See the README files in the package
+  for more info.
+- Add LDAP direct mount support to complement the file and NIS map direct
+  mount support already present.
+- Merged some patches from the Debian and SuSE autofs v4 packages.
+- Found a bunch of bugs and fixed them. This was largely due to the huge
+  efforts made by Aaron Ogden in testing a never ending stream of attempted
+  corrections. Thanks Aaron.
+
+
+29/09/2003 autofs-4.0.0-1
+-------------------------
+
+Largely the autofs-4.0.0pre10 with:
+- Some patches that I did ages ago to improve submounts. This includes
+  correcting the double slash in mount points. Changes to the init script
+  to improve the shutdown when submounts are involved.
+- Merged some small patches from the Debian and SuSE autofs v4 packages.
+- A simple work around to allow tree mounts to work with RedHat 2.4.20,
+  and above, kernels in the autofs4 module patch.
+                                                                                
+

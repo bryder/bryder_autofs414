@@ -1,0 +1,24 @@
+#!/bin/bash
+# Copies in files installed by autofs make install
+# Was correct at 4.1.4 bryder p49
+
+here=`pwd`
+destdir=$here/package_build
+/bin/rm -fr $destdir/usr $destdir/etc
+
+filelist="./usr/sbin/automount
+./usr/lib/autofs
+./usr/share/man/man5/autofs.5
+./usr/share/man/man5/auto.master.5
+./usr/share/man/man8/automount.8
+./usr/share/man/man8/autofs.8
+./usr/share/doc/autofs
+./etc/init.d/autofs
+./etc/default/autofs
+./etc/auto.master
+./etc/auto.hosts
+./etc/auto.net
+./etc/auto.smb
+./etc/auto.misc"
+cd /
+find $filelist -print | cpio -pmdv $destdir

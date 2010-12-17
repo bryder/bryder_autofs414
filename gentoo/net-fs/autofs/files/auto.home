@@ -1,0 +1,7 @@
+# $Id: auto.home,v 1.1 2005/01/02 06:01:46 raven Exp $
+# This is an automounter map and it has the following format
+# key [ -mount-options-separated-by-comma ] location
+# Details may be found in the autofs(5) manpage
+#*	-rw		autofs_home
+
+

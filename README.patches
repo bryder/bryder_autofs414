@@ -1,0 +1,63 @@
+
+ident $Id: README.patches,v 1.9 2005/04/06 15:09:01 raven Exp $
+
+The 2.4 kernel patches:
+
+autofs4-2.2.17-20001023.diff
+	original autofs4 patch for kernel 2.2
+
+autofs4-2.4.18-2001227.patch
+	current autofs4 patch for kernel 2.4.18 and below
+
+autofs4-2.4.19-20041227.patch
+	 current autofs4 patch for kernel 2.4.19
+
+autofs4-2.4.20-20041227.patch
+	current autofs4 patch for kernel 2.4.20
+
+autofs4-2.4.20-redhat9-20041227.patch
+	current autofs4 patch for RedHat 9 with RedHat kernel 2.4.20
+
+autofs4-2.4.21-20041227.patch
+	current autofs4 patch for kernel 2.4.21
+
+autofs4-2.4.22-20041227.patch
+	current autofs4 patch for kernel 2.4.22 to 2.4.26
+
+autofs4-2.4.22-fc1-20041227.patch
+	current autofs4 patch for Fedora Core 1
+
+autofs4-2.4.27-20041227.patch
+	current autofs4 patch for kernel 2.4.27 to 2.4.29
+
+autofs4-2.4.29-20041227.patch
+	current autofs4 patch for kernel 2.4.29 and above
+
+
+The 2.6 kernel patches:
+
+autofs4-2.6.0-20041227.patch
+	current autofs4 patch for 2.6.0 to 2.4.3
+
+autofs4-2.6.4-20041227.patch
+	current autofs4 patch for 2.6.4 to 2.4.6
+
+autofs4-2.6.7-20041227.patch
+	current autofs4 patch for 2.6.7 to 2.4.8
+
+autofs4-2.6.9-20041227.patch
+	current autofs4 patch for 2.6.9.
+
+autofs4-2.6.10-20041227.patch
+	current autofs4 patch for 2.6.10 and above.
+
+No additional patches are needed for 2.6.10 at the time of this
+release.
+
+These patches reflect the state of my autofs4 kernel module updates
+as they were at the time of release of this package. They may be out
+of date. You probably should use the latest patches found at the same
+location as this package.
+
+Ian Kent <raven@themaw.net>
+

@@ -1,0 +1,208 @@
+.\" Linux man page by B. James Phillippe, 1997 <bryan@Terran.ORG>
+.\"
+.\" This page was written to contribute to the Linux kernel autofs
+.\" implementation by H. Peter Anvin (1997).  It is loosly based on
+.\" the documentation for mount(8) and amd(8) Linux manpages.
+.\"
+.\" This is free documentation.
+.\"
+.\" $Id: automount.8,v 1.8 2004/11/20 13:54:39 raven Exp $
+.\"
+.TH AUTOMOUNT 8 "14 Jan 2000"
+.SH NAME
+automount \- configure mount points for autofs
+.SH SYNOPSIS
+\fBautomount\fP [\fIoptions\fP] \fImount-point\fP \fImap-type\fP[,\fIformat\fP] \fImap\fP [\fImap-options\fP]
+.SH DESCRIPTION
+The \fBautomount\fP program is used to configure a mount point for
+autofs, the inlined Linux automounter.  \fBautomount\fP works by
+taking a base \fImount-point\fP and \fImap\fP file, and using these 
+(combined with other \fIoptions\fP) to automatically mount filesystems 
+within the base \fImount-point\fP when they are accessed in any way.
+The filesystems are then autounmounted after a period of inactivity.
+.SH OPTIONS
+.TP
+.I "\-p, \-\-pid-file"
+Write the pid of the daemon to the specified file.
+.TP
+.I "\-t, \-\-timeout"
+Set the minimum timeout, in seconds, until directories are unmounted.
+The default is 5 minutes.  Setting the timeout to zero disables
+unmounts completely.
+.TP
+.I "\-v, \-\-verbose"
+Enables printing of general status and progress messages.
+.TP
+.I "\-d, \-\-debug"
+Enables printing of general status and progress messages as well as
+debuging messages.
+.TP
+.I "\-g, \-\-ghost"
+Request that directories in the automount be shown but not mounted
+until accesssed. The wildcard map is not ghosted.
+.TP
+.I "\-V, \-\-version"
+Display the version number, then exit.
+.TP
+.I "\-D, \-\-dumpmap"
+Dumps the maps read and exits.
+.TP
+.I "\-r, \-\-random\-multimount\-selection"
+Randomly selects a multimount mount point instead of performance
+testing each one and then mounting the fastest.
+.TP
+.I "\-u, \-\-use\-old\-ldap\-lookup"
+By default automount will use new code for finding the correct ldap
+schema. It starts with rfc2307bis, then does the netscape one, then
+the original rfc2307 schema. It only checks once for each mount point
+and remembers the schema for the rest of the automount invocation.
+If you set this flag it will do it the old way which involves looking
+for the schema every time a mount is requested.
+.TP
+.I "\-I, \-\-ignore\-stupid\-paths"
+The automount will return 'not found' for any key which contains '*' or
+starts with a dot. Ignoring '*' stops undefined results being returned when
+you use ldap. Ignoring the leading '.' is
+useful for macs and Windows when they look for metadata directories
+which typically do not exist in the root of an automount tree to help
+increase browse speed at the top of large trees of mount points.
+It will also ignore a path containing autmount(pid. This is to stop
+lookups when samba asks for these paths which do not exist of course.
+.TP
+.I "\-R, \-\-max\-nfs\-mount\-retries <n>"
+If set automount will retry 
+.B "n"
+times waiting between 1 and the argument to nfs-mount-retry-pause seconds
+(+1) between mounts 
+if one of the following errors is seen:
+.RS
+.P
+.I "RPC: Remote system error - Connection refused" 
+- usually caused by heavy fileserver load
+.P
+.I "RPC: Timed out"
+- usually caused by heavy fileserver load 
+.P
+.I "RPC: Remote system error - Connection timed out"
+ - usually caused by heavy fileserver load
+.P
+.I "Input/output error"
+- sometimes caused by  too many mounts starting at
+once on a client  - seen on centos 5.4 with kernel  2.6.18
+.P
+.I "can't read superblock"
+-  too many mounts starting at once on a client - seen 2.6.25.18 and others
+.RE
+.TP
+.I "\-R, \-\-nfs\-mount\-retry\-pause <secs>"
+The amount of time to pause between retries. In fact it sets the
+upperbound on the number of seconds before retrying (1s is added to
+this argument). So it will pause a random number of seconds between 1
+and nfs-mount-retry-pause+1 between retries.
+
+.SH ARGUMENTS
+\fBautomount\fP takes at least three arguments.  Mandatory arguments 
+include \fImount-point\fP, \fImap-type\fP, and \fImap\fP.  Both mandatory
+and optional arguments are described below.
+.TP
+\fBmount-point\fP
+Base location for autofs-mounted filesystems to be attached.  This is a
+directory name that will be created (as with \fBmkdir \-p\fP) and later
+when \fBautomount\fP terminates will be removed (as with \fBrmdir \-p\fP).
+.TP
+\fBmap-type\fP
+Type of map used for this invocation of \fBautomount\fP.  The following are
+valid map types:
+.RS
+.TP
+.B file
+The map is a regular text file.
+.TP
+.B program
+The map is an executable program, which is passed a key on the command
+line and returns an entry on stdout if successful.
+.TP
+.B yp
+The map is a NIS (YP) database.
+.TP
+.B nisplus
+The map is a NIS+ database.
+.TP
+.B hesiod
+The map is a hesiod database whose
+.B filsys
+entries are used for maps.
+.TP
+.B ldap
+map names are of the form \fB[//servername/]basedn\fP, where the optional
+\fBservername\fP is the name of the LDAP server to query, and \fBbasedn\fP is
+the DN to do a subtree search under. Two LDAP schema are supported. The
+automountMap and the nisMap (RFC 2307) object classes.
+.P
+Entries in the automountMap schema are \fBautomount\fP objects in
+the specified subtree, where the \fBcn\fP attribute is the key (the wildcard
+key is "/"), and the \fBautomountInformation\fP attribute contains the
+information used by the automounter.  Documentation on the schema
+used by this module is available online at
+\fIhttp://docs.sun.com/source/806-4251-10/mapping.htm\fP.
+.P
+RFC 2307 schema entries are \fBnisObject\fP objects and use the \fBcn\fP
+attribute as the key and the \fBnisMapEntry\fP contains information used
+by the automounter. 
+.RE
+.TP
+\fBformat\fP
+Format of the map data; currently the only formats
+recognized are \fBsun\fP, which is a subset of the Sun automounter map
+format, and \fBhesiod\fP, for hesiod filesys entries.  If the format is
+left unspecified, it defaults to \fBsun\fP for all map types except
+\fBhesiod\fP.
+.TP
+\fBmap\fP
+Location of mapfile to use.  This is an absolute UNIX pathname in the case
+for maps of types \fBfile\fP or \fBprogram\fP, and the name of a database
+in the case for maps of type \fByp\fP, \fBnisplus\fP, or \fBhesiod\fP.
+.TP
+\fBoptions\fP
+Any remaining command line arguments without leading dashes (\-) are
+taken as options (\fI\-o\fP) to \fBmount\fP.  Arguments with leading
+dashes are considered options for the maps.
+.sp
+The \fBsun\fP format supports the following options:
+.RS
+.TP
+.I "\-Dvariable=value"
+Replace \fIvariable\fP with \fIvalue\fP in map substitutions.
+.TP
+.I "\-strict"
+Treat errors when mounting file systems as fatal. This is important when
+multiple file systems should be mounted (`multimounts'). If this option
+is given, no file system is mounted at all if at least one file system
+can't be mounted.
+.RE
+.SH NOTES
+If the \fBautomount\fP daemon catches signal USR1, it will unmount all
+currently unused autofs-mounted filesystems and continue running
+(forced expire).  If it catches signals TERM or USR2 it will unmount
+all unused autofs-mounted filesystems and exit if all filesystems were
+unmounted.  Busy filesystems will not be unmounted.
+The daemon also responds to a HUP signal which triggers an update of
+maps for which ghosting is implemented (currently FILE and NIS maps).
+.P
+If the autofs directory itself is busy when the daemon is signalled
+with an exit signal then the daemon will exit without unmounting the
+autofs filesystem.  The filesystem is left in a catatonic
+(non-functional) state, and can be unmounted when it becomes unused.
+.SH "SEE ALSO"
+.BR autofs (5),
+.BR mount (8).
+.SH BUGS
+A whole slew of missing desirable features (see \fBTODO\fP file).
+
+The documentation leaves a lot to be desired.
+
+Please report other bugs along with a detailed description to
+<autofs@linux.kernel.org>. For instructions on how to join the list
+and for archives visit http://linux.kernel.org/mailman/listinfo/autofs
+.SH AUTHOR
+H. Peter Anvin <hpa@transmeta.com>

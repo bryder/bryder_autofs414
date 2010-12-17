@@ -1,0 +1,50 @@
+Supported forms for mount paths are:
+
+Normal single-host (these are unchanged)
+<path> host:/path/path
+
+Multiple replicated hosts, same path:
+<path> host1,host2,hostn:/path/path
+
+This will do an initial RPC call with a .1 second timeout to all hosts to 
+find best match.  If this fails, it will try a 10 second timeout, if this 
+fails it takes the first host.
+
+Multiple hosts, some with same path, some with another
+<path> host1,host2:/blah host3:/some/other/path
+
+Works as expected
+
+Multiple replicated hosts, different (potentially) paths:
+<path> host1:/path/pathA host2:/path/pathB
+
+Same as above with RPC calls..
+
+Mutliple weighted, replicated hosts same path:
+
+<path> host1(5),host2(6),host3(1):/path/path
+
+Will pick lowest weighted host that responds to RPC call.  
+RPC time is not counted, only whether the call got a reply 
+at all.  Initially does a .1 second timeout, if all hosts 
+fail this, moves to 10 second timeout.  If one of the hosts
+is localhost, the automounter will choose that regardless of
+its weight.  (This has been done to remain compatible with
+Sun's automounter)
+
+Multiple weighted, replicated hosts different (potentially) 
+paths:
+<path> host1(3):/path/pathA host2(5):/path/pathB
+
+Same as above with RPC calls/weighting.
+
+Anything else is questionable and unsupported, but these 
+variations will also work:
+<path> host1(3),host:/blah
+
+Unsupported and I don't know why you would use this, but will 
+work.  Weighted host always gets precedence if it responds to RPC
+
+Anything else, I ain't making no promises.
+
+Jason

@@ -1,0 +1,48 @@
+#
+# ident $Id: ldap-automount-auto.direct,v 1.2 2003/12/10 14:54:33 raven Exp $
+#
+dn: ou=auto.direct,dc=bogus
+objectClass: top
+objectClass: automountMap
+ou: auto.direct
+
+dn: cn=/nfs/budgie/man,ou=auto.direct,dc=bogus
+objectClass: automount
+cn: /nfs/budgie/man
+automountInformation: 	budgie:/usr/local/man
+
+dn: cn=/nfs/budgie/bin,ou=auto.direct,dc=bogus
+objectClass: automount
+cn: /nfs/budgie/bin
+automountInformation: 	budgie:/local/data/bin
+
+dn: cn=/nfs/budgie/etc,ou=auto.direct,dc=bogus
+objectClass: automount
+cn: /nfs/budgie/etc
+automountInformation: 	budgie:/usr/local/etc
+
+dn: cn=/nfs/sbin,ou=auto.direct,dc=bogus
+objectClass: automount
+cn: /nfs/sbin
+automountInformation:	budgie:/usr/local/sbin
+
+dn: cn=/tst/budgie/man,ou=auto.direct,dc=bogus
+objectClass: automount
+cn: /tst/budgie/man
+automountInformation:	budgie:/usr/local/man
+
+dn: cn=/nfs/budgie/sbin,ou=auto.direct,dc=bogus
+objectClass: automount
+cn: /nfs/budgie/sbin
+automountInformation:	budgie:/usr/local/sbin
+
+dn: cn=/nfs/budgie/test,ou=auto.direct,dc=bogus
+objectClass: automount
+cn: /nfs/budgie/test
+automountInformation:	budgie:/usr/local/test
+
+dn: cn=/tst/budgie/etc,ou=auto.direct,dc=bogus
+objectClass: automount
+cn: /tst/budgie/etc
+automountInformation:	budgie:/usr/local/etc
+

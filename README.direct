@@ -1,0 +1,39 @@
+
+ident $Id: README.direct,v 1.3 2004/04/03 07:14:33 raven Exp $
+
+Direct Mounts
+=============
+
+autofs understands direct mount maps for the file, NIS and
+ldap maps only.
+
+Direct maps are point specific, non-uniform mount points.
+
+The key in a direct map is a full pathname instead of the last
+component of a path as found in an indirect map.
+
+The key used in the master map to signal the automounter that
+the map is a direct map is always /-.
+
+For example if we were using NIS we might have something like
+the map entries below.
+
+In the master map:
+
+/-	autofs.global
+
+and in autofs.global:
+
+/nfs/apps/mozilla	bogus:/usr/local/moxilla
+/nfs/data/budgets	tiger:/usr/local/budgets
+/tst/sbin		bogus:/usr/sbin
+
+and so on.
+
+WARNING: don't mount one direct mount within another. This does
+  not work properly at the moment.
+
+NOTE: Due to current design limitations, direct maps will take over an
+  entire directory hierarchy.  What this means is, if your direct map key
+  is /usr/share/bilbo, then /usr will become an automount mount point,
+  mounting over the existing /usr.

@@ -1,0 +1,32 @@
+Fri Jan 21 17:31:43 GMT 2000
+Toby Jaffey <toby@earth.li>
+Added modules/mount_changer.c
+
+I have an NEC CD-ROM DRIVE:251, 4X CD-ROM changer w/4 slots, 128kB
+Cache.  The drive can only mount one CD at a time. To change the CD in
+use you must unmount, swap slots (lots of ioctl() calls) and
+remount. Using autofs, this module allows the illusion that all CDs
+are mounted at any given time. Only when data is requested does the
+drive need to swap. Clearly, this is awful for simultaneous reads
+across many disks, but I use it to create mp3 playlists spanning
+multiple CDs.
+
+The code is mostly clean, but rather than adding a new "mediatype" to
+the config file, I set my drive up as fstype=changer. The assumption
+is made that all of the disks are of type iso9660. This is a bad
+thing, but it works for me.
+
+[hpa: I believe these problems are due to a design error.  The changer
+should be a lookup type, rather than a filesystem (mount) type.]
+
+My /etc/auto.master says:
+/mnt/changer    /etc/auto.misc
+
+My /etc/auto.misc says:
+1          -fstype=changer              :/dev/hdb
+2          -fstype=changer              :/dev/hdb
+3          -fstype=changer              :/dev/hdb
+4          -fstype=changer              :/dev/hdb
+
+
+

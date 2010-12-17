@@ -1,0 +1,10 @@
+# $Id: auto.master,v 1.2 2005/01/04 14:42:57 raven Exp $
+# Sample auto.master file
+# Format of this file:
+# mountpoint map options
+# For details of the format look at autofs(8).
+#/net	/etc/autofs/auto.net
+#/smb	/etc/autofs/auto.smb
+#/misc	/etc/autofs/auto.misc
+#/home  /etc/autofs/auto.home
+

@@ -1,0 +1,16 @@
+# Did a horrible hack to get the debian package
+# for example
+# Make sure you have a .autofs-4.1.4 in the top directory or the configure doesn't work for some reason.
+
+./configure --prefix=/usr --libdir=/usr/lib
+make install
+# Make files from the above install
+
+cd debian
+# Maybe you have to change the version or something
+vi package_build/DEBIAN/control
+
+
+sh copy_in_built_files
+dpkg --build package_build autofs_4.1.4-44a_kubuntu_7_04_64.deb
+dpkg --build package_build autofs_4.1.4-46_kubuntu_7_04_64.deb

@@ -1,0 +1,60 @@
+#
+# $id$
+#
+# Makefile.conf.in
+#
+# Pattern file to be filled in by configure; contains specific options to
+# build autofs.
+#
+
+# Do we build with -fpie?
+DAEMON_CFLAGS  = @DAEMON_CFLAGS@
+DAEMON_LDFLAGS = @DAEMON_LDFLAGS@
+
+# Special parameters for glibc (libc 6)
+LIBNSL    = @LIBNSL@
+LIBRESOLV = @LIBRESOLV@
+
+# Hesiod support: yes (1) no (0)
+HESIOD = @HAVE_HESIOD@
+LIBHESIOD = @LIBHESIOD@
+HESIOD_FLAGS = @HESIOD_FLAGS@
+
+# LDAP support: yes (1) no (0)
+LDAP = @HAVE_LDAP@
+LIBLDAP= @LIBLDAP@
+LDAP_FLAGS = @LDAP_FLAGS@
+
+# NIS+ support: yes (1) no (0)
+NISPLUS = @HAVE_NISPLUS@
+
+# SMBFS support: yes (1) no (0)
+SMBFS = @HAVE_SMBMOUNT@
+
+# Support for calling e2fsck when mounting ext2 filesystems
+EXT2FS = @HAVE_E2FSCK@
+
+# Support for calling e3fsck when mounting ext3 filesystems
+EXT3FS = @HAVE_E3FSCK@
+
+#
+# Note: the DESTDIR define is so you can build autofs into a temporary
+# directory and still have all the compiled-in paths point to the right
+# place.
+#
+
+# Common install prefix
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+# Directory for autofs modules
+autofslibdir = @libdir@/autofs
+
+# Where to install the automount program
+sbindir = @sbindir@
+
+# Where to install man pages
+mandir = @mandir@
+
+# Location for init.d files
+initdir = @initdir@

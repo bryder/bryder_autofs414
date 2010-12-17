@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# $Id: auto.smb,v 1.4 2005/04/11 11:30:54 raven Exp $
+
+# This file must be executable to work! chmod 755!
+
+key="$1"
+opts="-fstype=smbfs"
+
+for P in /bin /sbin /usr/bin /usr/sbin
+do
+	if [ -x $P/smbclient ]
+	then
+		SMBCLIENT=$P/smbclient
+		break
+	fi
+done
+
+[ -x $SMBCLIENT ] || exit 1
+
+$SMBCLIENT -gNL $key 2>/dev/null| awk -v key="$key" -v opts="$opts" -F'|' -- '
+	BEGIN	{ ORS=""; first=1 }
+	/Disk/	{ if (first) { print opts; first=0 }; print " \\\n\t /" $2, "://" key "/" $2 }
+	END 	{ if (!first) print "\n"; else exit 1 }
+	'
+

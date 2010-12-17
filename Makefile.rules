@@ -1,0 +1,48 @@
+#
+# $Id: Makefile.rules,v 1.5 2004/01/29 16:01:22 raven Exp $
+#
+# Makefile rules for autofs project
+#
+
+# Root directory contents
+SUBDIRS = lib daemon modules man samples
+INCDIRS = include
+INCFILES = COPYING COPYRIGHT NEWS README* TODO Makefile Makefile.rules \
+	   Makefile.conf.in .version .autofs-* configure.in aclocal.m4 \
+	   configure *.patch autofs.spec
+
+# autofs utility library
+AUTOFS_LIB = ../lib/autofs.a
+
+# Compilers, linkers and flags
+# The STRIP defined here *must not* remove any dynamic-loading symbols
+
+ifdef DEBUG
+CFLAGS    = -O2 -g -DDEBUG
+LDFLAGS   = -g
+STRIP     = :
+else
+CFLAGS    = -O3 -fomit-frame-pointer -Wall
+LDFLAGS   = -s
+STRIP     = strip --strip-debug
+endif
+
+CC        = gcc
+CXX       = g++
+CXXFLAGS  = $(CFLAGS)
+LD        = ld
+SOLDFLAGS = -shared -Xlinker -rpath -Xlinker $(autofslibdir)
+
+# Standard rules
+
+.SUFFIXES: .c .o .s .so
+
+.c.o:
+	$(CC) $(CFLAGS) -c $<
+
+.c.s:
+	$(CC) $(CFLAGS) -S $<
+
+.c.so:
+	$(CC) $(SOLDFLAGS) $(CFLAGS) -o $*.so $< $(AUTOFS_LIB)
+	$(STRIP) $*.so

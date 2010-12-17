@@ -1,0 +1,189 @@
+#
+#ident $Id: configure.in,v 1.19 2005/04/06 15:24:37 raven Exp $
+#
+# configure.in for the autofs daemon
+
+AC_PREREQ(2.5)
+
+#
+# Disable caching (the script is tiny, and it doesn't work with --with-path)
+# then start autofs
+#
+define([AC_CACHE_LOAD], )dnl
+define([AC_CACHE_SAVE], )dnl
+AC_INIT(.autofs-4.1.4-50)
+
+#
+# autofs installs by default in /usr
+#
+AC_PREFIX_DEFAULT(/usr)
+
+#
+# The user can specify --with-path=PATH rather than relying on the default
+#
+searchpath="/usr/bin:/bin:/usr/sbin:/sbin"
+AC_ARG_WITH(path,
+--with-path=PATH	  look in PATH for binaries needed by the automounter,
+	if test -z "$withval" -o "$withval" = "yes" -o "$withval" = "no"
+	then
+		:
+	else
+		searchpath="${withval}"
+	fi
+)
+
+AC_MSG_CHECKING([for binaries in])
+AC_MSG_RESULT([$searchpath])
+
+#
+# Programs needed for various system functions or modules
+#
+AF_PATH_INCLUDE(MOUNT, mount, /bin/mount, $searchpath)
+AF_PATH_INCLUDE(UMOUNT, umount, /bin/umount, $searchpath)
+AF_PATH_INCLUDE(E2FSCK, fsck.ext2 e2fsck, , $searchpath)
+AF_PATH_INCLUDE(E3FSCK, fsck.ext3 e3fsck, , $searchpath)
+
+#
+# Newer mounts have the -s (sloppy) option to ignore unknown options,
+# good for portability
+#
+AF_SLOPPY_MOUNT()
+
+#
+# glibc/libc 6 new libraries
+#
+AC_CHECK_LIB(nsl, yp_match, LIBNSL="-lnsl")
+AC_SUBST(LIBNSL)
+
+AC_CHECK_LIB(resolv, res_query, LIBRESOLV="-lresolv")
+AC_SUBST(LIBRESOLV)
+
+#
+# Hesiod support?  Expect that this may have a special directory...
+#
+AF_tmp_ldflags="$LDFLAGS"
+LIBHESIOD=''
+HAVE_HESIOD=''
+AC_ARG_WITH(hesiod,
+--with-hesiod=DIR	  enable Hesiod support (libs and includes in DIR),
+	if test "$withval" = no
+	then
+		HAVE_HESIOD=0	# Disable
+	elif test -z "$withval" -o "$withval" = 'yes'
+	then
+		: Search for Hesiod in normal directory path
+	else
+		: Search for Hesiod in specific directory
+		LDFLAGS="$LDFLAGS -L${withval}/lib"
+		LIBHESIOD="-L${withval}/lib"
+		HESIOD_FLAGS="-I${withval}/include"
+	fi
+)	
+
+if test -z "$HAVE_HESIOD"
+then
+	HAVE_HESIOD=0
+	AC_CHECK_LIB(hesiod, hes_resolve, HAVE_HESIOD=1 LIBHESIOD="$LIBHESIOD -lhesiod", ,
+		     $LIBRESOLV)
+fi
+AC_SUBST(HAVE_HESIOD)
+AC_SUBST(LIBHESIOD)
+AC_SUBST(HESIOD_FLAGS)
+LDFLAGS="${AF_tmp_ldflags}"
+
+# NIS+ support?
+HAVE_NISPLUS=0
+AC_CHECK_HEADER(rpcsvc/nis.h, HAVE_NISPLUS=1)
+AC_SUBST(HAVE_NISPLUS)
+
+#
+# OpenLDAP support?  Expect that this may have a special directory...
+#
+AF_tmp_ldflags="$LDFLAGS"
+LIBLDAP=''
+HAVE_LDAP=''
+AC_ARG_WITH(openldap,
+--with-openldap=DIR	  enable OpenLDAP map support (libs and includes in DIR),
+	if test "$withval" = 'no'; then
+		HAVE_LDAP=0	# Disable 
+	elif test -z "$withval" -o "$withval" = 'yes'
+	then
+		: Search for LDAP in normal directory path
+	else
+		: Search for LDAP in specific directory
+		LDFLAGS="$LDFLAGS -L${withval}/lib"
+		LIBLDAP="-L${withval}/lib"
+		LDAP_FLAGS="-I${withval}/include"
+	fi
+)
+if test -z "$HAVE_LDAP"; then
+	HAVE_LDAP=0
+	LDAP_FLAGS="$LDAP_FLAGS -DLDAP_DEPRECATED=1"
+	AC_CHECK_LIB(ldap, ldap_init, HAVE_LDAP=1 LIBLDAP="$LIBLDAP -lldap -llber -lresolv", ,
+		     -llber -lresolv $LIBS)
+fi
+
+AC_SUBST(LDAP_FLAGS)
+AC_SUBST(HAVE_LDAP)
+AC_SUBST(LIBLDAP)
+LDFLAGS="${AF_tmp_ldflags}"
+
+#
+# Does gcc support building position independent executables?
+#
+AC_PROG_CC
+cat > pietest.c <<EOF
+int main(void) { return 0; }
+EOF
+CFLAGS=-fPIE
+LDFLAGS=-pie
+DAEMON_CFLAGS=
+DAEMON_LDFLAGS=
+AC_MSG_CHECKING([whether gcc -fPIE works])
+AC_RUN_IFELSE([AC_LANG_PROGRAM([[]], [[int main(void) {return 0;}]])],
+	      [gcc_supports_pie=yes], [gcc_supports_pie=no])
+AC_MSG_RESULT([$gcc_supports_pie])
+if test $gcc_supports_pie = yes ; then
+	DAEMON_CFLAGS="-fPIE"
+	DAEMON_LDFLAGS="-pie"
+fi
+rm -f pietest.c
+AC_SUBST(DAEMON_CFLAGS)
+AC_SUBST(DAEMON_LDFLAGS)
+
+#
+# Location of init.d directory?
+#
+AF_INIT_D()
+AC_SUBST(initdir)
+
+#
+# Enable ability to access value in external env variable
+#
+AC_ARG_ENABLE(ext-env,
+--disable-ext-env          disable search in environment for substitution variable,,
+	enableval=yes)
+if test x$enable_ext_env = xyes; then
+	AC_DEFINE(ENABLE_EXT_ENV, 1, [leave this alone])
+fi
+
+#
+# Disable use of locking when spawning mount command
+#
+AC_ARG_ENABLE(mount-locking,
+--disable-mount-locking          disable use of locking when spawning mount command,,
+	enableval=yes)
+if test x$enable_mount_locking = xyes -o x$enableval = xyes; then
+	AC_DEFINE(ENABLE_MOUNT_LOCKING, 1, [disable mount table locking -- use this if your maps contain recursive mounts -- EXPERIMENTAL])
+fi
+
+#
+# Write Makefile.conf and include/config.h
+#
+AC_CONFIG_HEADER(include/config.h)
+AC_OUTPUT(Makefile.conf)
+
+#
+# Run make clean since we don't explicitly code the header file dependencies
+#
+AC_OUTPUT_COMMANDS([make clean])

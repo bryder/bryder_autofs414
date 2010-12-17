@@ -1,0 +1,11 @@
+The functionality of converting map options to smbmnt arguments is now
+handled by /bin/mount.smbfs, which is shipped with Samba 2.0.6 or
+later.  You therefore need to make sure you have /bin/mount.smbfs
+installed on your system if you plan on using smbfs with autofs.
+
+WARNING: Some versions of Samba incorrectly install this as
+/bin/mount.smb rather than /bin/mount.smbfs.  If that is the case on
+your system, please link or move /bin/mount.smb to /bin/mount.smbfs.
+This is a Samba bug/misfeature and has been reported to the Samba
+maintainers.
+
