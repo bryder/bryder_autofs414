@@ -25,10 +25,12 @@ fileserver is not  busy is preferable to a job failing.
 It's quite possible I've done customisations which may not be right
 for you. In particular the init script and it's /etc/sysconfig/autofs 
 
-We only use autofs with maps held in ldap (apart from auto.hosts).
+So you can decide if this will work for you here's what we use - and
+hence what's been tested
 
-
-
+  * We only use autofs with maps held in ldap (apart from auto.hosts).
+  * We have no direct maps.
+  * We don't do CIFS with autofs.
 
 
 
