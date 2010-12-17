@@ -1,5 +1,10 @@
 -*- text -*-
 
+Please see README.bryder for notes about this version.
+
+Below here is the original README.
+
+
 ident $Id: README,v 1.5 2003/12/04 15:34:52 raven Exp $
 
 autofs is a kernel-based automounter for Linux.  It performs a job
