@@ -16,7 +16,7 @@ LIBS = -lldap -llber
 all: $(BINS) rc.autofs
 
 autofs-ldap-auto-master: $(OBJS)
-	$(CC) $(LDFLAGS) -o autofs-ldap-auto-master $(OBJS) $(LIBS)
+	$(CC) $(LDFLAGS) ($LDAP_FLAGS) -o autofs-ldap-auto-master $(OBJS) $(LIBS)
 	$(STRIP) autofs-ldap-auto-master
 
 rc.autofs: rc.autofs.in
